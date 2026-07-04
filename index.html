@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auckland Property Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1a2744;
+      --navy-light: #243460;
+      --cream: #f7f5f0;
+      --cream-dark: #ede9e0;
+      --stone: #8c8880;
+      --stone-light: #c8c4bc;
+      --accent: #2d6a4f;
+      --accent-light: #e8f4ee;
+      --accent-mid: #40916c;
+      --amber: #b5830a;
+      --amber-light: #fef3cc;
+      --danger: #c0392b;
+      --danger-light: #fdecea;
+      --white: #ffffff;
+      --border: #ddd9d0;
+      --shadow: 0 2px 12px rgba(26,39,68,0.08);
+      --shadow-lg: 0 8px 32px rgba(26,39,68,0.12);
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 2rem 0 1.5rem;
+    }
+    .header-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    .header-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--stone-light);
+      margin-bottom: 8px;
+    }
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    header h1 span { color: #7ec8a0; }
+    header p {
+      font-size: 14px;
+      color: var(--stone-light);
+      max-width: 520px;
+    }
+
+    /* Main */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* API key section */
+    .api-section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .api-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+    .api-note {
+      font-size: 12px;
+      color: var(--stone);
+    }
+    #apiKey {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--cream);
+      color: var(--navy);
+      outline: none;
+    }
+    #apiKey:focus { border-color: var(--accent-mid); }
+    .save-key-btn {
+      padding: 8px 16px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .save-key-btn:hover { background: var(--navy-light); }
+    .key-status {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Criteria bar */
+    .criteria-bar {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .criteria-bar h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--stone);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .criteria-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .cpill {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid #b7deca;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .cpill.amber {
+      background: var(--amber-light);
+      color: var(--amber);
+      border-color: #f0d080;
+    }
+    .sources-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .source-chip {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      color: var(--stone);
+      background: var(--cream);
+    }
+
+    /* Search button */
+    .search-wrap {
+      margin-bottom: 1.5rem;
+    }
+    .search-btn {
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.15s;
+      letter-spacing: -0.01em;
+    }
+    .search-btn:hover:not(:disabled) { background: var(--accent-mid); }
+    .search-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* Progress */
+    .progress {
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .progress-bar-wrap {
+      height: 3px;
+      background: var(--cream-dark);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 1s ease;
+      width: 0%;
+    }
+    .progress-text {
+      font-size: 13px;
+      color: var(--stone);
+      text-align: center;
+    }
+
+    /* Summary box */
+    .summary-box {
+      background: var(--navy);
+      color: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .summary-box h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--stone-light);
+      margin-bottom: 8px;
+    }
+    .summary-box p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #d4d0c8;
+    }
+    .summary-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .smeta {
+      font-size: 12px;
+      color: var(--stone-light);
+    }
+    .smeta strong {
+      color: #7ec8a0;
+      font-weight: 600;
+    }
+
+    /* Listings */
+    .listings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .listings-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .sort-btn {
+      font-size: 12px;
+      padding: 5px 12px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--stone);
+      font-family: inherit;
+    }
+    .sort-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+    .listing-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .listing-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.15s;
+    }
+    .listing-card:hover { box-shadow: var(--shadow-lg); }
+    .listing-card.west-priority { border-left: 3px solid var(--accent); }
+
+    .card-top {
+      padding: 1.1rem 1.25rem 0.9rem;
+    }
+    .card-eyebrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .suburb-tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .west-badge {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .source-label {
+      font-size: 11px;
+      color: var(--stone);
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .card-price {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--navy);
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+    .card-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--stone);
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 10px;
+    }
+    .card-summary {
+      font-size: 13.5px;
+      color: #4a5568;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+    .flags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .flag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .flag-pro { background: var(--accent-light); color: var(--accent); }
+    .flag-watch { background: var(--amber-light); color: var(--amber); }
+
+    .card-footer {
+      background: var(--cream);
+      border-top: 1px solid var(--border);
+      padding: 10px 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .view-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .view-link:hover { color: var(--accent-mid); }
+    .no-link {
+      font-size: 12px;
+      color: var(--stone);
+    }
+    .budget-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 10px;
+    }
+    .budget-ideal { background: var(--accent-light); color: var(--accent); }
+    .budget-stretch { background: var(--amber-light); color: var(--amber); }
+
+    /* Empty / error */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--stone);
+      display: none;
+    }
+    .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
+    .empty-state h3 { font-size: 16px; font-weight: 500; color: var(--navy); margin-bottom: 6px; }
+    .empty-state p { font-size: 14px; }
+
+    /* Timestamp */
+    .timestamp {
+      text-align: center;
+      font-size: 12px;
+      color: var(--stone);
+      margin-top: 2rem;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 24px; }
+      .card-price { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-label">Andy &amp; family · Private search tool</div>
+    <h1>Auckland <span>Property</span> Finder</h1>
+    <p>Live search across TradeMe, OneRoof, Homes.co.nz and Realestate.co.nz — filtered to your exact criteria.</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- API Key -->
+  <div class="api-section">
+    <div>
+      <div class="api-label">Anthropic API key</div>
+      <div class="api-note">Saved locally in your browser — never sent anywhere except Anthropic's API</div>
+    </div>
+    <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" />
+    <button class="save-key-btn" onclick="saveKey()">Save key</button>
+    <span class="key-status" id="keyStatus"></span>
+  </div>
+
+  <!-- Criteria summary -->
+  <div class="criteria-bar">
+    <h2>Your search criteria</h2>
+    <div class="criteria-pills">
+      <span class="cpill">💰 $1.2M – $2.3M NZD</span>
+      <span class="cpill">🛏 3–4 bedrooms</span>
+      <span class="cpill">🚿 2+ bathrooms</span>
+      <span class="cpill">🚗 Garage + 2 car parks</span>
+      <span class="cpill">🌿 Deck / garden</span>
+      <span class="cpill amber">⭐ West side priority</span>
+      <span class="cpill">Freehold only</span>
+      <span class="cpill">Houses only</span>
+      <span class="cpill">Move-in ready</span>
+    </div>
+    <div class="sources-row">
+      <span class="source-chip">TradeMe Property</span>
+      <span class="source-chip">OneRoof</span>
+      <span class="source-chip">Homes.co.nz</span>
+      <span class="source-chip">Realestate.co.nz</span>
+    </div>
+  </div>
+
+  <!-- Search button -->
+  <div class="search-wrap">
+    <button class="search-btn" id="searchBtn" onclick="runSearch()">
+      🔍 Search listings now
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress" id="progress">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">Searching listings...</div>
+  </div>
+
+  <!-- Market summary -->
+  <div class="summary-box" id="summaryBox">
+    <h3>Market snapshot</h3>
+    <p id="summaryText"></p>
+    <div class="summary-meta" id="summaryMeta"></div>
+  </div>
+
+  <!-- Results header -->
+  <div class="listings-header" id="listingsHeader" style="display:none">
+    <h2 id="resultsCount">Results</h2>
+    <button class="sort-btn" onclick="toggleSort()">Sort: <span id="sortLabel">West first</span></button>
+  </div>
+
+  <!-- Listings -->
+  <div class="listing-grid" id="listingGrid"></div>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="emptyState">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <h3>No listings found</h3>
+    <p>Try searching again — listings update frequently.</p>
+  </div>
+
+  <div class="timestamp" id="timestamp"></div>
+</main>
+
+<script>
+  let allListings = [];
+  let sortWestFirst = true;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('apf_api_key');
+    if (saved) {
+      document.getElementById('apiKey').value = saved;
+      document.getElementById('keyStatus').textContent = '✓ Key loaded';
+    }
+  });
+
+  function saveKey() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key.startsWith('sk-ant-')) {
+      document.getElementById('keyStatus').textContent = '⚠ Key looks wrong';
+      document.getElementById('keyStatus').style.color = '#c0392b';
+      return;
+    }
+    localStorage.setItem('apf_api_key', key);
+    document.getElementById('keyStatus').textContent = '✓ Saved';
+    document.getElementById('keyStatus').style.color = '#2d6a4f';
+  }
+
+  function toggleSort() {
+    sortWestFirst = !sortWestFirst;
+    document.getElementById('sortLabel').textContent = sortWestFirst ? 'West first' : 'Price: low–high';
+    renderListings(allListings);
+  }
+
+  async function runSearch() {
+    const key = localStorage.getItem('apf_api_key') || document.getElementById('apiKey').value.trim();
+    if (!key || !key.startsWith('sk-ant-')) {
+      alert('Please enter and save your Anthropic API key first.');
+      return;
+    }
+
+    const btn = document.getElementById('searchBtn');
+    const progress = document.getElementById('progress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const summaryBox = document.getElementById('summaryBox');
+    const listingsHeader = document.getElementById('listingsHeader');
+    const emptyState = document.getElementById('emptyState');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Searching...';
+    progress.style.display = 'block';
+    summaryBox.style.display = 'none';
+    listingsHeader.style.display = 'none';
+    emptyState.style.display = 'none';
+    document.getElementById('listingGrid').innerHTML = '';
+    document.getElementById('timestamp').textContent = '';
+
+    const steps = [
+      [10, 'Searching TradeMe Property...'],
+      [28, 'Checking OneRoof...'],
+      [50, 'Scanning Homes.co.nz...'],
+      [68, 'Checking Realestate.co.nz...'],
+      [82, 'Analysing matches against your criteria...'],
+      [93, 'Summarising the best options...']
+    ];
+    let si = 0;
+    progressBar.style.width = '5%';
+    const stepTimer = setInterval(() => {
+      if (si < steps.length) {
+        progressBar.style.width = steps[si][0] + '%';
+        progressText.textContent = steps[si][1];
+        si++;
+      }
+    }, 3500);
+
+    const prompt = `You are a NZ property search assistant for a buyer in Auckland. Search across TradeMe Property, OneRoof, Homes.co.nz, and Realestate.co.nz for current for-sale listings matching these exact criteria:
+
+LOCATION PRIORITY ORDER:
+1. Westmere, Herne Bay, Ponsonby, Grey Lynn, St Marys Bay (highest priority — west side)
+2. Point Chevalier, Mount Albert, Kingsland, Eden Terrace, Sandringham, Mount Eden
+3. Parnell, Newmarket, Orakei, Mission Bay, Epsom (north end), Remuera (western side only)
+
+MUST HAVE:
+- Freehold title only (no leasehold, no cross-lease if possible)
+- Residential house only (no apartments, units, townhouses)
+- 3 to 4 bedrooms
+- Garage (at least single, double preferred) and minimum 2 off-street car parks
+- Price range: $1,200,000 to $2,300,000 NZD (sweet spot $1,500,000–$2,000,000)
+- Move-in ready or light cosmetic work only (no major structural do-ups, no earthquake-prone buildings)
+
+STRONG PREFERENCES:
+- 2+ bathrooms (1 bathroom acceptable if storage/value is compelling)
+- Deck and/or garden/outdoor space
+- Sunny aspect, north or west facing preferred
+- Character or quality build
+
+DEAL BREAKERS (exclude these):
+- Leasehold
+- Apartments or units
+- Major structural issues or significant do-up required
+- Price over $2,300,000
+
+Search these sites now and return real current listings. For each listing provide the exact address, price guide, specs, and your assessment of how well it matches.
+
+IMPORTANT: Return ONLY raw JSON with no markdown formatting, no code blocks, no explanation. Just the JSON object.
+
+{
+  "summary": "2-3 sentence honest market overview of what's available right now in these suburbs at this price point — what's good value, what to watch, how competitive it is",
+  "totalFound": number,
+  "westCount": number,
+  "avgPrice": "average price of listings found",
+  "listings": [
+    {
+      "title": "full street address",
+      "suburb": "suburb name",
+      "price": "price or price guide as listed",
+      "priceSortValue": numeric price in NZD (use midpoint if range, 0 if unknown),
+      "bedrooms": number,
+      "bathrooms": number,
+      "parking": "description e.g. Double garage, 2 off-street",
+      "landSize": "land area if known, else null",
+      "houseSize": "floor area if known, else null",
+      "source": "TradeMe / OneRoof / Homes.co.nz / Realestate.co.nz",
+      "url": "direct URL to listing if found, else null",
+      "summary": "2-3 sentences on why this property is or isn't a good match for this buyer",
+      "pros": ["array of up to 4 genuine positives"],
+      "watch": ["array of up to 2 things to verify or cautions"],
+      "withinIdealBudget": true if under $2M, false if between $2M-$2.3M,
+      "westSide": true if in priority group 1 or 2 suburbs, false otherwise,
+      "titleType": "Freehold / Cross-lease / unknown"
+    }
+  ]
+}
+
+Aim for 6–12 listings. Sort by relevance to criteria. Only include genuine current listings you actually find.`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 4000,
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await response.json();
+      clearInterval(stepTimer);
+      progressBar.style.width = '100%';
+      progressText.textContent = 'Done.';
+      setTimeout(() => { progress.style.display = 'none'; }, 800);
+
+      if (data.error) {
+        alert('API error: ' + (data.error.message || JSON.stringify(data.error)));
+        btn.disabled = false;
+        btn.innerHTML = '🔍 Search listings now';
+        return;
+      }
+
+      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+      let parsed;
+      try {
+        const jsonMatch = textBlocks.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('No JSON');
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch(e) {
+        document.getElementById('summaryBox').style.display = 'block';
+        document.getElementById('summaryText').textContent = textBlocks || 'Search completed — results could not be parsed. Try again.';
+        summaryBox.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '🔄 Search again';
+        return;
+      }
+
+      if (parsed.summary) {
+        document.getElementById('summaryText').textContent = parsed.summary;
+        document.getElementById('summaryMeta').innerHTML = `
+          <span class="smeta">Listings found: <strong>${parsed.totalFound || (parsed.listings || []).length}</strong></span>
+          <span class="smeta">West side: <strong>${parsed.westCount || '—'}</strong></span>
+          <span class="smeta">Avg price: <strong>${parsed.avgPrice || '—'}</strong></span>
+        `;
+        summaryBox.style.display = 'block';
+      }
+
+      allListings = parsed.listings || [];
+      if (allListings.length > 0) {
+        renderListings(allListings);
+        listingsHeader.style.display = 'flex';
+        document.getElementById('resultsCount').textContent = `${allListings.length} listing${allListings.length !== 1 ? 's' : ''} found`;
+      } else {
+        emptyState.style.display = 'block';
+      }
+
+      const now = new Date();
+      document.getElementById('timestamp').textContent = `Last searched: ${now.toLocaleDateString('en-NZ', { weekday: 'long', day: 'numeric', month: 'long' })} at ${now.toLocaleTimeString('en-NZ', { hour: '2-digit', minute: '2-digit' })}`;
+
+    } catch(err) {
+      clearInterval(stepTimer);
+      progress.style.display = 'none';
+      alert('Search failed: ' + err.message);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '🔄 Search again';
+  }
+
+  function renderListings(listings) {
+    const sorted = [...listings].sort((a, b) => {
+      if (sortWestFirst) {
+        if (a.westSide !== b.westSide) return a.westSide ? -1 : 1;
+        return (a.priceSortValue || 0) - (b.priceSortValue || 0);
+      } else {
+        return (a.priceSortValue || 0) - (b.priceSortValue || 0);
+      }
+    });
+
+    const grid = document.getElementById('listingGrid');
+    grid.innerHTML = sorted.map(l => {
+      const pros = (l.pros || []).map(p => `<span class="flag flag-pro">✓ ${p}</span>`).join('');
+      const watches = (l.watch || []).map(w => `<span class="flag flag-watch">⚠ ${w}</span>`).join('');
+      const budgetTag = l.withinIdealBudget
+        ? '<span class="budget-tag budget-ideal">Ideal budget</span>'
+        : '<span class="budget-tag budget-stretch">Stretch</span>';
+      const westBadge = l.westSide ? '<span class="west-badge">West side</span>' : '';
+      const linkHtml = l.url
+        ? `<a class="view-link" href="${l.url}" target="_blank">View listing →</a>`
+        : '<span class="no-link">Search listing site directly</span>';
+      const specs = [];
+      if (l.bedrooms) specs.push(`🛏 ${l.bedrooms} bed`);
+      if (l.bathrooms) specs.push(`🚿 ${l.bathrooms} bath`);
+      if (l.parking) specs.push(`🚗 ${l.parking}`);
+      if (l.landSize) specs.push(`📐 ${l.landSize}`);
+      if (l.titleType && l.titleType !== 'unknown') specs.push(`📄 ${l.titleType}`);
+
+      return `
+        <div class="listing-card ${l.westSide ? 'west-priority' : ''}">
+          <div class="card-top">
+            <div class="card-eyebrow">
+              <div class="suburb-tag">${l.suburb || ''}${westBadge ? ' ' + westBadge : ''}</div>
+              <span class="source-label">${l.source || ''}</span>
+            </div>
+            <div class="card-title">${l.title || 'Property'}</div>
+            <div class="card-price">${l.price || 'POA'}</div>
+            <div class="card-meta">
+              ${specs.map(s => `<span class="meta-chip">${s}</span>`).join('')}
+            </div>
+            <div class="card-summary">${l.summary || ''}</div>
+            <div class="flags-row">${pros}${watches}</div>
+          </div>
+          <div class="card-footer">
+            ${linkHtml}
+            ${budgetTag}
+          </div>
+        </div>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>
